@@ -1,4 +1,4 @@
-namespace Warehouse.Domain.Responses;
+namespace Agenda.Domain.Responses;
 
 public static class HttpStatusMessages
 {

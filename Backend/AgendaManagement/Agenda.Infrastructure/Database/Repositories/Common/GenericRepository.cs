@@ -1,12 +1,19 @@
 ﻿using Agenda.Domain.Repositories.Common;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Agenda.Infrastructure.Database.Context;
 
 namespace Agenda.Infrastructure.Database.Repositories.Common;
 
-public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
+public abstract class GenericRepository<TEntity, TModel> : IGenericRepository<TModel>
+    where TEntity : class
+    where TModel : class
 {
-    private readonly AgendaDbContext _context;
-    private readonly DbSet<TEntity> _dbSet;
+    protected readonly AgendaDbContext _context;
+    protected readonly DbSet<TEntity> _dbSet;
 
     public GenericRepository(AgendaDbContext context)
     {
@@ -14,40 +21,42 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         _dbSet = context.Set<TEntity>();
     }
 
-    public async Task<TEntity> CreateAsync(TEntity entity)
-    {
-        var result = await _dbSet.AddAsync(entity);
-        await _context.SaveChangesAsync();
-        return result.Entity;
-    }
+    protected abstract TEntity ToEntity(TModel model);
+    protected abstract TModel ToModel(TEntity entity);
 
-    public async Task<List<TEntity>> GetAllAsync()
-    {
-        return await _dbSet.ToListAsync();
-    }
-
-    public async Task<TEntity?> GetByIdAsync(int id)
-    {
-        return await _dbSet.FindAsync(id);
-    }
-
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<TModel?> GetByIdAsync(Guid id)
     {
         var entity = await _dbSet.FindAsync(id);
-        if (entity == null)
-        {
-            return false;
-        }
-
-        _dbSet.Remove(entity);
-        await _context.SaveChangesAsync();
-        return true;
+        return entity != null ? ToModel(entity) : null;
     }
 
-    public async Task<TEntity> UpdateAsync(TEntity entity)
+    public async Task<IEnumerable<TModel>> GetAllAsync()
     {
-        var entityEntry = _dbSet.Update(entity);
+        var entities = await _dbSet.AsNoTracking().ToListAsync();
+        return entities.Select(ToModel);
+    }
+
+    public async Task AddAsync(TModel model)
+    {
+        var entity = ToEntity(model);
+        await _dbSet.AddAsync(entity);
         await _context.SaveChangesAsync();
-        return entityEntry.Entity;
+    }
+
+    public async Task UpdateAsync(TModel model)
+    {
+        var entity = ToEntity(model);
+        _dbSet.Update(entity);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var entity = await _dbSet.FindAsync(id);
+        if (entity != null)
+        {
+            _dbSet.Remove(entity);
+            await _context.SaveChangesAsync();
+        }
     }
 }

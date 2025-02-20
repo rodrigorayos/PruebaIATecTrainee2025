@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Agenda.Infrastructure.Database.Entities.Agenda;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Agenda.Infrastructure.Database.Entities.Agenda;
 
-namespace Agenda.Infrastructure.Database.Configurations.Agenda;
+namespace Agenda.Infrastructure.Database.Context.Configurations;
 
 public class EventConfiguration : IEntityTypeConfiguration<EventEntity>
 {
@@ -54,5 +54,10 @@ public class EventConfiguration : IEntityTypeConfiguration<EventEntity>
         builder.Property(e => e.LastModifiedBy)
             .HasColumnName("last_modified_by")
             .IsRequired();
+
+        builder.HasOne(e => e.Agenda)
+            .WithMany(a => a.Events)
+            .HasForeignKey(e => e.AgendaId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

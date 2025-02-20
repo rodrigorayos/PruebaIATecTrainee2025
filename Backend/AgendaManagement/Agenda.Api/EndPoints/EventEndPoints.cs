@@ -1,5 +1,4 @@
 ﻿using Agenda.Application.Services;
-using Agenda.Domain.Dtos;
 using Agenda.Domain.Models.Agenda;
 
 namespace Agenda.Api.Endpoints;
@@ -20,20 +19,16 @@ public static class EventEndpoints
         groupBuilder.MapGet("", 
             (EventService service) => service.GetAllAsync());
 
-        groupBuilder.MapGet("/{id:int}", 
-            async (int id, EventService service) => 
+        groupBuilder.MapGet("/{id:guid}", 
+            async (Guid id, EventService service) => 
                 await service.GetByIdAsync(id));
 
-        groupBuilder.MapGet("/date/{date:datetime}", 
-            async (DateTime date, EventService service) => 
-                await service.GetByDateAsync(date));
-
-        groupBuilder.MapPut("/{id:int}", 
-            async (int id, EventModel updateModel, EventService service) => 
+        groupBuilder.MapPut("/{id:guid}", 
+            async (Guid id, EventModel updateModel, EventService service) => 
                 await service.UpdateAsync(updateModel));
 
-        groupBuilder.MapDelete("/{id:int}", 
-            async (int id, EventService service) => 
+        groupBuilder.MapDelete("/{id:guid}", 
+            async (Guid id, EventService service) => 
                 await service.DeleteAsync(id));
     }
 }

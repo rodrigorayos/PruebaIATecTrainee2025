@@ -5,5 +5,5 @@ namespace Agenda.Domain.Repositories.Agenda;
 
 public interface IEventRepository : IGenericRepository<EventModel>
 {
-    Task<List<EventModel>> GetByDateAsync(DateTime date);
+    Task<IEnumerable<EventModel>> GetByAgendaIdAsync(Guid agendaId);
 }

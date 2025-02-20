@@ -1,10 +1,14 @@
-﻿    namespace Agenda.Domain.Repositories.Common;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-    public interface IGenericRepository<T> where T : class
-    {
-        Task<T> CreateAsync(T entity);
-        Task<T?> GetByIdAsync(int id);
-        Task<List<T>> GetAllAsync();
-        Task<T> UpdateAsync(T entity);
-        Task<bool> DeleteAsync(int id);
-    }
+namespace Agenda.Domain.Repositories.Common;
+
+public interface IGenericRepository<TModel> where TModel : class
+{
+    Task<TModel?> GetByIdAsync(Guid id);
+    Task<IEnumerable<TModel>> GetAllAsync();
+    Task AddAsync(TModel model);
+    Task UpdateAsync(TModel model);
+    Task DeleteAsync(Guid id);
+}

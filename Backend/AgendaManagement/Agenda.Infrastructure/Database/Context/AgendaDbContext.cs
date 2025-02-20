@@ -1,58 +1,26 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Agenda.Infrastructure.Database.Entities.Common;
+﻿using Agenda.Infrastructure.Database.Context.Configurations;
 using Agenda.Infrastructure.Database.Entities.Agenda;
-using Agenda.Infrastructure.Database.Configurations.Agenda;
+using Microsoft.EntityFrameworkCore;
 
-namespace Agenda.Infrastructure.Database;
-
-public class AgendaDbContext : DbContext
+namespace Agenda.Infrastructure.Database.Context
 {
-    public DbSet<EventEntity> Events { get; set; }
-    
-    public AgendaDbContext(DbContextOptions<AgendaDbContext> options) : base(options) { }
-
-    protected override void OnModelCreating(ModelBuilder builder)
+    public class AgendaDbContext : DbContext
     {
-        builder.ApplyConfiguration(new EventConfiguration());
-    }
-
-    public override int SaveChanges()
-    {
-        UpdateAuditFields();
-        return base.SaveChanges();
-    }
-
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        UpdateAuditFields();
-        return base.SaveChangesAsync(cancellationToken);
-    }
-
-    private void UpdateAuditFields()
-    {
-        foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+        public AgendaDbContext(DbContextOptions<AgendaDbContext> options) : base(options)
         {
-            switch (entry.State)
-            {
-                case EntityState.Added:
-                    entry.Entity.CreatedAt = DateTime.UtcNow;
-                    entry.Entity.CreatedBy = GetCurrentUserId();
-                    entry.Entity.LastModifiedByAt = DateTime.UtcNow;
-                    entry.Entity.LastModifiedBy = GetCurrentUserId();
-                    break;
-
-                case EntityState.Modified:
-                    entry.Property(nameof(BaseEntity.CreatedAt)).IsModified = false;
-                    entry.Property(nameof(BaseEntity.CreatedBy)).IsModified = false;
-                    entry.Entity.LastModifiedByAt = DateTime.UtcNow;
-                    entry.Entity.LastModifiedBy = GetCurrentUserId();
-                    break;
-            }
         }
-    }
 
-    private int GetCurrentUserId()
-    {
-        return 1;
+        public DbSet<UserEntity> Users { get; set; }
+        public DbSet<AgendaEntity> Agendas { get; set; }
+        public DbSet<EventEntity> Events { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new AgendaConfiguration());
+            modelBuilder.ApplyConfiguration(new EventConfiguration());
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

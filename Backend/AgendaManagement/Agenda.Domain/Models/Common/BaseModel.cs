@@ -1,11 +1,15 @@
-﻿namespace Agenda.Domain.Models;
+﻿namespace Agenda.Domain.Models.Common;
 
-public class BaseModel
+public abstract class BaseModel
 {
-    public int Id { get; set; }
-    
-    public BaseModel(int id)
+    public Guid Id { get; private set; }
+    public DateTime CreatedAt { get; private set; }
+    public DateTime? UpdatedAt { get; private set; }
+
+    public BaseModel()
     {
-        Id = id;
+        Id = Guid.NewGuid();
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = null;
     }
 }

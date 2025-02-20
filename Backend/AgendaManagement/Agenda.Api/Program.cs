@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Agenda.Infrastructure.Database;
 using Agenda.Infrastructure.Ioc.DependencyInjection;
 using Agenda.Api.Endpoints;
+using Agenda.Infrastructure.Database.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 
+app.MapUserEndpoints();
+app.MapAgendaEndpoints();
 app.MapEventEndpoints();
 
 app.Run();

@@ -2,5 +2,5 @@
 
 public interface IIdentifiable
 {
-    public int Id { get; set; }
+    Guid Id { get; set; }
 }

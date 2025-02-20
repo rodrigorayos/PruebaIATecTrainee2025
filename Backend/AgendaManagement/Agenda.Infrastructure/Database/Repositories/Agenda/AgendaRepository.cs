@@ -13,19 +13,19 @@ using Agenda.Infrastructure.Database.Extensions.Agenda;
 
 namespace Agenda.Infrastructure.Database.Repositories.Agenda
 {
-    public class EventRepository : GenericRepository<EventEntity, EventModel>, IEventRepository
+    public class AgendaRepository : GenericRepository<AgendaEntity, AgendaModel>, IAgendaRepository
     {
-        public EventRepository(AgendaDbContext context) : base(context) { }
+        public AgendaRepository(AgendaDbContext context) : base(context) { }
 
-        protected override EventEntity ToEntity(EventModel model) => model.ToEntity();
-        protected override EventModel ToModel(EventEntity entity) => entity.ToModel(entity.Agenda.ToModel(entity.Agenda.User.ToModel()));
+        protected override AgendaEntity ToEntity(AgendaModel model) => model.ToEntity();
+        protected override AgendaModel ToModel(AgendaEntity entity) => entity.ToModel(entity.User.ToModel());
 
-        public async Task<IEnumerable<EventModel>> GetByAgendaIdAsync(Guid agendaId)
+        public async Task<IEnumerable<AgendaModel>> GetByUserIdAsync(Guid userId)
         {
             var entities = await _dbSet.AsNoTracking()
-                .Where(e => e.AgendaId == agendaId)
+                .Where(a => a.UserId == userId)
                 .ToListAsync();
-            return entities.Select(e => ToModel(e));
+            return entities.Select(a => ToModel(a));
         }
     }
 }
